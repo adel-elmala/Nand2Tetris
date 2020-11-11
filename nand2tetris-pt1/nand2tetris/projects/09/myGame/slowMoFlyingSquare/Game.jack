@@ -1,0 +1,139 @@
+
+
+class Game {
+   field Square square,obstacle1,obstacle2; // the square of this game
+   field int direction; // the square's current direction: 
+                        // 0=none, 1=up, 2=down, 3=left, 4=right
+
+   field boolean jump;
+   field boolean collision;
+   field int squareSize;
+   field int obstacleSize;
+   field int score;
+
+
+
+   /** Constructs a new Square Game. */
+   constructor Game new() {
+      // Creates a 30 by 30 pixels square and positions it at the top-left
+      // of the screen.
+      let squareSize = 30;
+      let obstacleSize = 20;
+      let square = Square.new(50, 220, squareSize);
+      let obstacle1 = Square.new(360,230,obstacleSize);
+      let obstacle2 = Square.new(480,230,obstacleSize);
+      let direction = 0;  // initial state is no movement
+      return this;
+   }
+
+   /** Disposes this game. */
+   method void dispose() {
+      do square.dispose();
+      do obstacle1.dispose();
+      do obstacle2.dispose();
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   /** Moves the square in the current direction. */
+   method void moveSquare() {
+      if (jump) { do square.moveUp(); let jump = false; }
+      else{
+         do square.moveDown();
+      }
+      do Sys.wait(5);  // delays the next movement
+      return;
+   }
+   method void movingObstacles(){
+      do obstacle1.moveLeft();
+      do obstacle2.moveLeft();
+      do collision();
+      return;
+
+
+
+   }
+
+   method void collision(){
+      var int sqx , obs1x , obs2x;
+      var int sqy , obs1y , obs2y;
+     
+      let sqx = square.getX()  ;
+      let obs1x = obstacle1.getX();
+      let obs2x = obstacle2.getX();
+     
+      let sqy = square.getY() + squareSize;
+      let obs1y = obstacle1.getY();
+      let obs2y = obstacle2.getY();
+
+      if (( (sqx < obs1x) & ((sqx + squareSize) > obs1x) ) | ( (sqx < (obs1x + obstacleSize)) & ((sqx + squareSize) > (obs1x + obstacleSize )) ) ) {
+         if ( (sqy > obs1y) ){
+
+            let collision = true;
+            do Output.moveCursor(10,20);
+            do Output.printString("GAME OVER!");
+            do Sys.halt();
+         }
+         else{
+            let collision = false;
+            let score = score + 1 ;
+            do Output.moveCursor(0,0);
+            do Output.printString("Score: ");
+            do Output.printInt(score);
+      }
+      }
+      
+      if (( (sqx < obs2x) & ((sqx + squareSize) > obs2x) ) | ( (sqx < (obs2x + obstacleSize)) & ((sqx + squareSize) > (obs2x + obstacleSize )) ) ) {
+         if ( (sqy > obs2y) ){
+
+            let collision = true;
+            do Output.moveCursor(10,20);
+            do Output.printString("GAME OVER!");
+            do Sys.halt();
+         }
+         else{
+            let collision = false;
+            let score = score + 1 ;
+            do Output.moveCursor(0,0);
+            do Output.printString("Score: ");
+            do Output.printInt(score);
+      }
+}
+      // if (sq = ob2)  {let collision = true;}
+
+      return;
+   }
+   /** Runs the game: handles the user's inputs and moves the square accordingly */
+   method void run() {
+      var char key;  // the key currently pressed by the user
+      var boolean exit;
+      let exit = false;
+      let score = 0 ;
+      while (~exit) {
+         // waits for a key to be pressed
+         while (key = 0) {
+            let key = Keyboard.keyPressed();
+            do moveSquare();
+            do movingObstacles();
+            
+         }
+         if (key = 81)  { let exit = true; }     // q key
+         if (key = 32) { let jump = true; }   // space
+         if (key = 0) { let jump = false; }   // nothing
+
+         
+         // waits for the key to be released
+         while (~(key = 0)) {
+            let key = Keyboard.keyPressed();
+            do moveSquare();
+            do movingObstacles();
+
+         }
+         // do movingObstacles();
+     } // while
+     return;
+   }
+}
+
+
+

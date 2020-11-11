@@ -1,0 +1,384 @@
+function Game.new 0
+push constant 9
+call Memory.alloc 1
+pop pointer 0
+push constant 30
+pop this 6
+push constant 20
+pop this 7
+push constant 50
+push constant 220
+push this 6
+call Square.new 3
+pop this 0
+push constant 360
+push constant 230
+push this 7
+call Square.new 3
+pop this 1
+push constant 480
+push constant 230
+push this 7
+call Square.new 3
+pop this 2
+push constant 0
+pop this 3
+push pointer 0
+return
+function Game.dispose 0
+push argument 0
+pop pointer 0
+push this 0
+call Square.dispose 1
+pop temp 0
+push this 1
+call Square.dispose 1
+pop temp 0
+push this 2
+call Square.dispose 1
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function Game.moveSquare 0
+push argument 0
+pop pointer 0
+push this 4
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 0
+call Square.moveUp 1
+pop temp 0
+push constant 0
+pop this 4
+goto IF_END0
+label IF_FALSE0
+push this 0
+call Square.moveDown 1
+pop temp 0
+label IF_END0
+push constant 5
+call Sys.wait 1
+pop temp 0
+push constant 0
+return
+function Game.movingObstacles 0
+push argument 0
+pop pointer 0
+push this 1
+call Square.moveLeft 1
+pop temp 0
+push this 2
+call Square.moveLeft 1
+pop temp 0
+push pointer 0
+call Game.collision 1
+pop temp 0
+push constant 0
+return
+function Game.collision 6
+push argument 0
+pop pointer 0
+push this 0
+call Square.getX 1
+pop local 0
+push this 1
+call Square.getX 1
+pop local 1
+push this 2
+call Square.getX 1
+pop local 2
+push this 0
+call Square.getY 1
+push this 6
+add
+pop local 3
+push this 1
+call Square.getY 1
+pop local 4
+push this 2
+call Square.getY 1
+pop local 5
+push local 0
+push local 1
+lt
+push local 0
+push this 6
+add
+push local 1
+gt
+and
+push local 0
+push local 1
+push this 7
+add
+lt
+push local 0
+push this 6
+add
+push local 1
+push this 7
+add
+gt
+and
+or
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 3
+push local 4
+gt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+not
+pop this 5
+push constant 10
+push constant 20
+call Output.moveCursor 2
+pop temp 0
+push constant 10
+call String.new 1
+push constant 71
+call String.appendChar 2
+push constant 65
+call String.appendChar 2
+push constant 77
+call String.appendChar 2
+push constant 69
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 79
+call String.appendChar 2
+push constant 86
+call String.appendChar 2
+push constant 69
+call String.appendChar 2
+push constant 82
+call String.appendChar 2
+push constant 33
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+call Sys.halt 0
+pop temp 0
+goto IF_END1
+label IF_FALSE1
+push constant 0
+pop this 5
+push this 8
+push constant 1
+add
+pop this 8
+push constant 0
+push constant 0
+call Output.moveCursor 2
+pop temp 0
+push constant 7
+call String.new 1
+push constant 83
+call String.appendChar 2
+push constant 99
+call String.appendChar 2
+push constant 111
+call String.appendChar 2
+push constant 114
+call String.appendChar 2
+push constant 101
+call String.appendChar 2
+push constant 58
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push this 8
+call Output.printInt 1
+pop temp 0
+label IF_END1
+label IF_FALSE0
+push local 0
+push local 2
+lt
+push local 0
+push this 6
+add
+push local 2
+gt
+and
+push local 0
+push local 2
+push this 7
+add
+lt
+push local 0
+push this 6
+add
+push local 2
+push this 7
+add
+gt
+and
+or
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 3
+push local 5
+gt
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push constant 0
+not
+pop this 5
+push constant 10
+push constant 20
+call Output.moveCursor 2
+pop temp 0
+push constant 10
+call String.new 1
+push constant 71
+call String.appendChar 2
+push constant 65
+call String.appendChar 2
+push constant 77
+call String.appendChar 2
+push constant 69
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 79
+call String.appendChar 2
+push constant 86
+call String.appendChar 2
+push constant 69
+call String.appendChar 2
+push constant 82
+call String.appendChar 2
+push constant 33
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+call Sys.halt 0
+pop temp 0
+goto IF_END3
+label IF_FALSE3
+push constant 0
+pop this 5
+push this 8
+push constant 1
+add
+pop this 8
+push constant 0
+push constant 0
+call Output.moveCursor 2
+pop temp 0
+push constant 7
+call String.new 1
+push constant 83
+call String.appendChar 2
+push constant 99
+call String.appendChar 2
+push constant 111
+call String.appendChar 2
+push constant 114
+call String.appendChar 2
+push constant 101
+call String.appendChar 2
+push constant 58
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push this 8
+call Output.printInt 1
+pop temp 0
+label IF_END3
+label IF_FALSE2
+push constant 0
+return
+function Game.run 2
+push argument 0
+pop pointer 0
+push constant 0
+pop local 1
+push constant 0
+pop this 8
+label WHILE_EXP0
+push local 1
+not
+not
+if-goto WHILE_END0
+label WHILE_EXP1
+push local 0
+push constant 0
+eq
+not
+if-goto WHILE_END1
+call Keyboard.keyPressed 0
+pop local 0
+push pointer 0
+call Game.moveSquare 1
+pop temp 0
+push pointer 0
+call Game.movingObstacles 1
+pop temp 0
+goto WHILE_EXP1
+label WHILE_END1
+push local 0
+push constant 81
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+not
+pop local 1
+label IF_FALSE0
+push local 0
+push constant 32
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+not
+pop this 4
+label IF_FALSE1
+push local 0
+push constant 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+pop this 4
+label IF_FALSE2
+label WHILE_EXP2
+push local 0
+push constant 0
+eq
+not
+not
+if-goto WHILE_END2
+call Keyboard.keyPressed 0
+pop local 0
+push pointer 0
+call Game.moveSquare 1
+pop temp 0
+push pointer 0
+call Game.movingObstacles 1
+pop temp 0
+goto WHILE_EXP2
+label WHILE_END2
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return

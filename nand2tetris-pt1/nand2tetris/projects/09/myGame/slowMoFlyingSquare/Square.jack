@@ -1,0 +1,90 @@
+class Square {
+
+   field int x, y,init; // screen location of the square's top-left corner
+   field int size,jump; // length of this square, in pixels
+
+   /** Constructs a new square with a given location and size. */
+   constructor Square new(int Ax, int Ay, int Asize) {
+      let init = Ax;
+      let x = Ax;
+      let y = Ay;
+      let size = Asize;
+      do draw();
+      return this;
+   }
+
+   /** Disposes this square. */
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   /** Draws the square on the screen. */
+   method void draw() {
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x, y, x + size, y + size);
+      return;
+   }
+
+   /** Erases the square from the screen. */
+   method void erase() {
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x, y, x + size, y + size);
+      return;
+   }
+
+   method int getX(){
+      return x;
+   }
+   method int getY(){
+      return y;
+   }
+   method void Restart(){
+      do erase();
+      let x = init;
+      return;
+   }
+
+   /** Moves the square up by 2 pixels. */
+   method void moveUp() {
+      let jump = 100;
+      if (y > size) {
+         do Screen.setColor(false);
+         do Screen.drawRectangle(x, y, x + size, y + size);
+         let y = y - jump;
+         do Screen.setColor(true);
+         do Screen.drawRectangle(x, y, x + size, y + size);
+      }
+      return;
+   }
+
+   /** Moves the square down by 2 pixels. */
+   method void moveDown() {
+      
+      if ((y + size) < 254) {
+         do Screen.setColor(false);
+         do Screen.drawRectangle(x, y, x + size, y + 1);
+         let y = y + 2;
+         do Screen.setColor(true);
+         do Screen.drawRectangle(x, (y + size) - 1, x + size, y + size);
+      }
+      return;
+   }
+
+   /** Moves the square left by 2 pixels. */
+   method void moveLeft() {
+      if (x > 1) {
+         do Screen.setColor(false);
+         do Screen.drawRectangle((x + size) - 1, y, x + size, y + size);
+         let x = x - 2;
+         do Screen.setColor(true);
+         do Screen.drawRectangle(x, y, x + 1, y + size);
+      }
+      else{
+         do Restart();
+
+      }
+      return;
+   }
+
+}

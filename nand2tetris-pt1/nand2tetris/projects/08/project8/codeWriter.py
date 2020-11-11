@@ -10,6 +10,8 @@ class CodeWriter():
         self.functionTypes   = ["function","call", "return"]
         self.segmentTypes    = ["constant","this","that","pointer","temp","static","local","argument"]
 
+        self.currentFunction = ''
+
     def commandType(self,command):
         command = command.split(' ')[0]
         
@@ -119,10 +121,105 @@ class CodeWriter():
                 code2 = [f'@{fileName +"."+ str(Index)}',"D=A"]
             return code2 + code1
 
+   
+    def writeLabel(self,command,fileName):
+        #inserts (Filename.FuncitonName$Label) into the assembly file
+        label = self.arg1(command)
+
+
+        writeLabel = ['(' + fileName + '.' + self.currentFunction + '$' + label + ')']
+        return writeLabel 
+
+    def writeGoto(self,command,fileName):
+        label = self.arg1(command)
+
+        goto = fileName + '.' + self.currentFunction + '$' + label
+
+        code =[f'@{goto}','0;JMP']
+        return code
+
+
+    def writeIf(self,command,fileName):
+        label = self.arg1(command)
+        goto = fileName + '.' + self.currentFunction + '$' + label
+        # pop last stack element and load it into D Reg to do cond jmp
+        code = ['@SP','M=M-1','A=M','D=M',f'@{goto}','D;JNE']
+        return code 
+
+
+    def writeFunction(self,command,fileName):
+        functionName = self.arg1(command)
+        nLocals = self.arg2(command)
+        self.currentFunction = functionName
+        pushedLocals = []
+       
+        while nLocals != 0:
+            pushedLocals += self.writePushPop('push constant 0',fileName)
+            nLocals -= 1
+        
+        code = [f'({fileName}.{functionName})'] + pushedLocals
+
+        return code
+
+    def writeReturn(self,command):
+        
+        code1 = ['@LCL','D=M','@FRAME','M=D']           # FRAME = LCL
+        code2 = ['@5','D=D-A','A=D','D=M','@RET','M=D'] # RET = *(FRAME-5)
+        code3 = ['@SP','M=M-1','A=M','D=M','@ARG','A=M','M=D'] # *ARG = pop()
+        code4 = ['@ARG','D=M+1','@SP','M=D'] # SP = ARG+1
+        code5 = ['@FRAME','A=M-1','D=M','@THAT','M=D'] # THAT = *(FRAME-1)
+        code6 = ['@2','D=A','@FRAME','A=M-D','D=M','@THIS','M=D'] # THIS = *(FRAME-2)
+        code7 = ['@3','D=A','@FRAME','A=M-D','D=M','@ARG','M=D'] # ARG = *(FRAME-3)
+        code8 = ['@4','D=A','@FRAME','A=M-D','D=M','@LCL','M=D'] # LCL = *(FRAME-4)
+        code9 = ['@RET','A=M','0;JMP'] # goto RET
+
+        return code1+code2+code3+code4+code5+code6+code7+code8+code9 
+
+    def writeCall(self,command,fileName,commandNo):
+
+        nArgs = self.arg2(command)
+        calledFunction = self.arg1(command)
+        calledFunction = f'{fileName}.{calledFunction}'
+        #FileName.FunctionName$ret.i
+        returnLabel = f'{fileName}.{self.currentFunction}$ret.{commandNo}'
+        push = ['@SP','A=M','M=D','@SP','M=M+1']
+        
+        code1 = [f'@{returnLabel}','D=A'] + push # push return-address
+        code2 = ['@LCL','D=M'] + push # push LCL
+        code3 = ['@ARG','D=M'] + push # push ARG
+        code4 = ['@THIS','D=M'] + push # push THIS
+        code5 = ['@THAT','D=M'] + push # push THAT
+        code6 = [f'@{nArgs + 5}','D=A','@SP','D=M-D','@ARG','M=D'] # ARG = SP-n-5
+        code7 = ['@SP','D=M','@LCL','M=D'] # LCL = SP
+        code8 = [f'@{calledFunction}','0;JMP'] # goto f
+        code9 = [f'({returnLabel})'] # (return-address)
+
+        return code1+code2+code3+code4+code5+code6+code7+code8+code9
+
+    def writeInit(self,fileName,commandNo):
+        # SP = 256
+        # call Sys.init 
+        bootcomment = ['//BOOTING']
+        code1 = ['@256','D=A','@SP','M=D']
+        code2 = self.writeCall('call Sys.init 0',fileName,commandNo)
+        return bootcomment + code1 + code2
+
     def writeCode(self,command,commandNo,fileName,fileNameStatic):
         ctype = self.commandType(command)
         if ctype == "C_ARITHMETIC":
             return self.writeArithmetic(command,commandNo)
         elif ctype in ["C_PUSH","C_POP"]:
-            return self.writePushPop(command,fileName)                
+            return self.writePushPop(command,fileNameStatic) 
 
+        elif ctype == 'C_LABEL':
+            return self.writeLabel(command,fileName)
+        elif ctype == 'C_GOTO':
+            return self.writeGoto(command,fileName)           
+        elif ctype == 'C_IF':
+            return self.writeIf(command,fileName)        
+        elif ctype == 'C_FUNCTION':
+            return self.writeFunction(command,fileName)
+        elif ctype == 'C_RETURN':
+            return self.writeReturn(command)        
+        elif ctype == 'C_CALL':
+            return self.writeCall(command,fileName,commandNo)    

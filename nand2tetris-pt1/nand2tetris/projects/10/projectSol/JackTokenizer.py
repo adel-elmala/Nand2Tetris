@@ -18,11 +18,14 @@ class JackTokenizer():
         # Fill in the tokenList 
         self.tokenz()
         self.nToken = len(self.tokenList)
-        self.outputXML()
+        # print(self.currentToken)
+        # self.outputXML()
+
+        # return self.tokenList
 
         # self.ListReadable(self.tokenList)
-
-        # print(self.tokenList)
+        
+        print(self.tokenList)
         # print(self.tokenList[30])
         # print(self.tokenList[33])
 
@@ -42,7 +45,6 @@ class JackTokenizer():
                 return lines
         else:
             raise "File Extenstion not supported"
-
         
     def filterLine(self,line): # remove white spaces and stand-alone line comments
         lineList = line.split()
@@ -64,8 +66,7 @@ class JackTokenizer():
         elif (isBlockEnded): # .. */
             self.removeNextLine = False
         return isBlockComment or self.removeNextLine or isBlockEnded
-            
-         
+                     
     def filter(self,fileList):
         filterList = [ self.clean(line) for line in fileList if not (self.blockComment(line) or  self.filterLine(line)) ]    
         return filterList
@@ -124,7 +125,6 @@ class JackTokenizer():
         else :
             raise "Can't be called -- No more Tokens left!"
         
-
     def tokenType(self):
         current = self.tokenList[self.currentToken]
         if current in self.keywords:
@@ -138,15 +138,16 @@ class JackTokenizer():
             try:
                 int(current)
                 return 'INT_CONST'
-            except:
+            except ValueError:
                 return 'IDENTIFIER'
+            else:
+                return 'UNKNOWN'
 
     def keyWord(self):
         if self.tokenType() == 'KEYWORD':
             return self.tokenList[self.currentToken]
 
     def symbol(self):
-
         if self.tokenType() == 'SYMBOL':
             symbol = self.tokenList[self.currentToken]
             if symbol == '<':return '&lt;'
@@ -155,7 +156,6 @@ class JackTokenizer():
             elif symbol == '"':return '&quot;'
             else: return symbol
             
-
     def identifier(self):
         if self.tokenType() == 'IDENTIFIER':
             return self.tokenList[self.currentToken]
@@ -167,6 +167,7 @@ class JackTokenizer():
     def stringVal(self):
         if self.tokenType() == 'STRING_CONST':
             return self.tokenList[self.currentToken].split('"')[1]
+
 
     def handleTokenTags(self):
         tokenType = self.tokenType()
@@ -181,8 +182,6 @@ class JackTokenizer():
         elif tokenType == 'IDENTIFIER':
             return f'<identifier> {self.identifier()} </identifier>'
 
-
-
     def outputXML(self):
         with open( self.writeToFile + 'TMine.xml' , 'w') as writer:
             
@@ -192,9 +191,17 @@ class JackTokenizer():
                 writer.write(self.handleTokenTags() + '\n')
             writer.write('</tokens>' + '\n')
 
+    def getToken(self):
+        self.advance()
+        return self.tokenList[self.currentToken]
+    
+    def getTokenNoAdvance(self):
+        return self.tokenList[self.currentToken]
+    
+    def getNextTokenNoAdvance(self):
+        return self.tokenList[self.currentToken + 1]
 
+    def getAfterNextTokenNoAdvance(self):
+        return self.tokenList[self.currentToken + 2]
 
-        
-
-
-tokenizer = JackTokenizer('Main.jack')
+# tokenizer = JackTokenizer('Main.jack')
